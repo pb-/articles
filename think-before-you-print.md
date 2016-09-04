@@ -1,4 +1,4 @@
-There is a [TL;DR at the bottom](#tl-dr).
+There is a [TL;DR at the bottom](#tldr).
 
 # Think Before You Print
 
@@ -19,13 +19,13 @@ Brother provides a Linux driver for this printer and a [Stack Overflow](http://s
 
 ## Test page
 
-That was easy enough; let's print a test page. Navigate to `localhost:631`, select the printer, and click on "Print test page." You will notice that the printer does not print anything at all but flashes a red LED. According to the manual there are several meanings to this, but the most likely here is a paper size mismatch. Indeed, the default media size is 29mm x 90mm. After setting this to 12mm you should be able to print the test page (and other documents).
+That was easy enough; let's print a test page. Navigate to `localhost:631`, select the printer, and click on "Print test page." You will notice that the printer does not print anything at all but flashes a red LED. According to the manual there are several meanings to this, but the most likely here is a paper size mismatch. Indeed, the default media size is 29mm × 90mm. After setting this to 12mm you should be able to print the test page (and other documents).
 
 However, it turns out that it doesn't matter what the dimensions of your document are, a 12mm label is going to be cut at about 100mm in length. At least we are covered in this regard—the driver includes a tool called `brpapertoolcups` that will allow you to set a custom paper size. So by running, say,
 
     # brpapertoollpr_ql720nw -P QL-720NW -n 12x30mm -w 12 -h 30
 
-you can add a custom paper size and thus ensure that the printer cuts the label after 30mm (don't forget to restart the CUPS service after running that command). It is of course tempting to add a paper size of 29mm x 30mm and hope that this will allow you to use the entire space of your 12mm (27mm) roll. Well, the printer is simply going to reject your job (LED is red and flashing) in this case.
+you can add a custom paper size and thus ensure that the printer cuts the label after 30mm (don't forget to restart the CUPS service after running that command). It is of course tempting to add a paper size of 29mm × 30mm and hope that this will allow you to use the entire space of your 12mm (27mm) roll. Well, the printer is simply going to reject your job (LED is red and flashing) in this case.
 
 
 ## Digging deeper
@@ -49,7 +49,7 @@ This tool was an important starting point, though. I ran it through `strace` to 
 
 Looks like there are some files of interest in `/opt/brother/PTouch/ql720nw`! Besides two expected files that store the default label sizes and the custom ones you add there is `/opt/brother/PTouch/ql720nw/lpd/filterql720nw`. This shell script implements a filter chain that receives documents from CUPS and prepares them in such a way that the printer can understand. At the end of this chain is a proprietary binary format that includes a rasterized version of the document. Without really knowing what to expect, I extended the filter chain by `[...] | tee /tmp/dump` and inspected its contents. Luckily, the data looked fairly bitmap-y and rather sparse, uncompressed, and unobfuscated. Good news.
 
-My first question was: what is the difference between a, say, 29mm x 30mm label versus a 12mm x 30mm label? Two dumps later I got
+My first question was: what is the difference between a, say, 29mm × 30mm label versus a 12mm × 30mm label? Two dumps later I got
 
     -rw------- 1 root root 26566 Sep  4 21:59 /tmp/dump12mm
     -rw------- 1 root root 26566 Sep  4 22:00 /tmp/dump29mm
@@ -60,6 +60,7 @@ This is *very* good news. My suspicion at this point was that the bitmap has a f
 
 Comparing the first 256 bytes of those two dumps, I noticed only one difference at offset 211:
 
+        12mm data                                         29mm data
                       |                                                 |
                       v                                                 v
         0000000 0000 0000 0000 0000 0000 0000 0000 0000   0000000 0000 0000 0000 0000 0000 0000 0000 0000
