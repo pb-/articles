@@ -88,4 +88,4 @@ Add custom media size with 29mm width and desired height (30mm in this example).
 
 Grab [force-12mm-paper.diff](files/force-12mm-paper.diff) and patch driver to select 12mm media when using this custom size.
 
-    # patch /opt/brother/PTouch/ql720nw/lpd/filterql720nw < force-12mm-paper.diff
+    # patch /opt/brother/PTouch/ql720nw/inf/brql720nwinit < force-12mm-paper.diff
